@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { supabaseClient } from '@/lib/supabase.client'
 import { useRouter } from 'next/navigation'
+import { DropdownMenuItem } from '../ui/dropdown-menu'
 
 export default function SignOutButton() {
 	const router = useRouter()
@@ -12,5 +12,5 @@ export default function SignOutButton() {
 		router.refresh()
 	}
 
-	return <Button onClick={handleSignOut}>Sign out</Button>
+	return <DropdownMenuItem onClick={handleSignOut}>Sign out</DropdownMenuItem>
 }

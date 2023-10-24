@@ -9,8 +9,37 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      posts: {
+        Row: {
+          body: string
+          created_at: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: number
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       profiles: {
         Row: {
+          avatar_url: string
           created_at: string
           display_name: string
           email: string
@@ -20,6 +49,7 @@ export interface Database {
           username: string
         }
         Insert: {
+          avatar_url: string
           created_at?: string
           display_name: string
           email: string
@@ -29,6 +59,7 @@ export interface Database {
           username: string
         }
         Update: {
+          avatar_url?: string
           created_at?: string
           display_name?: string
           email?: string
@@ -44,10 +75,7 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      handle_new_user: {
-        Args: Record<PropertyKey, never>
-        Returns: Record<string, unknown>
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
