@@ -2,7 +2,8 @@ import { createClient } from '@supabase/supabase-js'
 import dotenv from 'dotenv'
 import fs from 'fs'
 import path from 'path'
-import { wp_bp_activity, wp_users, wp_usersmeta } from './validators'
+import { Database } from '../lib/database.types'
+import { wp_bp_activity, wp_bp_friends, wp_users, wp_usersmeta } from './validators'
 
 dotenv.config({ path: '.env.local' })
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY)
@@ -68,6 +69,22 @@ async function main() {
 				.filter((a) => a.type === 'activity_update' && Object.keys(userIdMap).includes(a.user_id.toString()))
 				.map((a) => ({ id: a.id, created_at: a.date_recorded.toISOString(), body: a.content, user_id: userIdMap[a.user_id] }))
 		)
+
+	await supabase.from('friends').insert(
+		wp_bp_friends
+			.filter(
+				(f) =>
+					Object.keys(userIdMap).includes(f.initiator_user_id.toString()) &&
+					Object.keys(userIdMap).includes(f.friend_user_id.toString()) &&
+					f.is_confirmed
+			)
+			.map((f) => ({
+				id: f.id,
+				created_at: f.date_created.toISOString(),
+				initiator_id: userIdMap[f.initiator_user_id],
+				friend_id: userIdMap[f.friend_user_id],
+			}))
+	)
 }
 
 main()
