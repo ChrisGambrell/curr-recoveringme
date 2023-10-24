@@ -1,4 +1,3 @@
-import { Row } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Button } from '../ui/button'
 import {
@@ -12,7 +11,7 @@ import {
 } from '../ui/dropdown-menu'
 import SignOutButton from './sign-out-button'
 
-export default function UserNav({ user }: { user: Row<'profiles'> }) {
+export default function UserNav({ user }: { user: Profile }) {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>

@@ -1,6 +1,5 @@
 import { createRouteHandlerClient, createServerActionClient, createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { Database } from './database.types'
 
 export const supabaseServer = createServerComponentClient<Database>({ cookies: () => cookies() })
 export const supabaseServerAction = createServerActionClient<Database>({ cookies: () => cookies() })

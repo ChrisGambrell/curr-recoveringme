@@ -1,9 +1,15 @@
-import H1 from '@/components/typography/h1'
+import Post from '@/components/post'
+import { supabaseServer } from '@/lib/supabase.server'
 
-export default function HomePage() {
+export default async function FeedPage() {
+	const { data } = await supabaseServer.from('posts').select('*, author:profiles(*)').order('created_at', { ascending: false })
+	const posts = data?.map((post) => ({ ...post, author: Array.isArray(post.author) ? post.author[0] : post.author })) || []
+
 	return (
-		<div className='space-y-4'>
-			<H1>Hello! You are authenticated.</H1>
+		<div className='max-w-lg pt-8 mx-auto space-y-4'>
+			{posts.map((post) => (
+				<Post key={post.id} post={post} />
+			))}
 		</div>
 	)
 }

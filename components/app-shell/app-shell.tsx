@@ -11,7 +11,7 @@ export default async function AppShell({ children }: { children: ReactNode }) {
 			<Navbar user={authedUser} />
 			<div className='relative w-full h-full pt-16'>
 				<Sidebar />
-				<div className='w-full h-full pl-20'>{children}</div>
+				<div className='w-full h-full pl-20 overflow-hidden overflow-y-auto'>{children}</div>
 			</div>
 		</div>
 	)
