@@ -13,6 +13,8 @@ export const wp_bp_activitySchema = z.object({
 	date_recorded: z.coerce.date(),
 })
 export const wp_bp_activity = wp_bp_activitySchema.array().parse(WP_BP_ACTIVITY)
+export const wp_posts = wp_bp_activity.filter((a) => a.type === 'activity_update' && !!a.content.trim())
+export const wp_comments = wp_bp_activity.filter((a) => a.type === 'activity_comment' && !!a.content.trim())
 
 export const wp_bp_friendsSchema = z.object({
 	id: z.number(),
