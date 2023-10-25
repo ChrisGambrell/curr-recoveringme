@@ -5,8 +5,9 @@ declare global {
 	type Database = TDatabase
 	type Row<T extends keyof Database['public']['Tables']> = TDatabase['public']['Tables'][T]['Row']
 
+	type Comment = Row<'comments'>
 	type Post = Row<'posts'>
 	type Profile = Row<'profiles'>
 
-	type PostWithAuthor = Post & { author: Profile }
+	type PostWithAuthorAndComments = Post & { author: Profile; comments: Comment[] }
 }

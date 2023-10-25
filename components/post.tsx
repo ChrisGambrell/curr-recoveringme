@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 
-export default function Post({ post }: { post: PostWithAuthor }) {
+export default function Post({ post }: { post: PostWithAuthorAndComments }) {
 	return (
 		<div className='px-4 py-6 space-y-4 text-sm rounded-lg bg-card'>
 			<div className='flex items-start'>
@@ -45,9 +45,10 @@ export default function Post({ post }: { post: PostWithAuthor }) {
 				<div className='flex items-center'>
 					<ThumbsUpIcon className='w-5 h-5 mr-2' />0
 				</div>
-				{/* TODO: Add action and display correct number */}
+				{/* TODO: Add action (open details page) */}
 				<div className='flex items-center'>
-					<MessageCircleIcon className='w-5 h-5 mr-2' />0
+					<MessageCircleIcon className='w-5 h-5 mr-2' />
+					{post.comments.length}
 				</div>
 			</div>
 		</div>

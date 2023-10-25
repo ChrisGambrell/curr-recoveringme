@@ -22,8 +22,8 @@ export default function ActionButtons({
 		setIsLoading(true)
 		if (isFriend) await supabaseClient.from('friends').delete().eq('initiator_id', authedUserId).eq('friend_id', profileId)
 		else await supabaseClient.from('friends').insert({ initiator_id: authedUserId, friend_id: profileId })
-		setIsLoading(false)
 		router.refresh()
+		setIsLoading(false)
 	}
 
 	return (
