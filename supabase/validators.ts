@@ -2,6 +2,7 @@ import { z } from 'zod'
 import WP_BP_ACTIVITY from './wp_data/wp_bp_activity.json'
 import WP_BP_FRIENDS from './wp_data/wp_bp_friends.json'
 import WP_BP_GROUPS from './wp_data/wp_bp_groups.json'
+import WP_BP_GROUPS_MEMBERS from './wp_data/wp_bp_groups_members.json'
 import WP_USERSMETA from './wp_data/wp_usermeta.json'
 import WP_USERS from './wp_data/wp_users.json'
 
@@ -10,12 +11,13 @@ export const wp_bp_activitySchema = z.object({
 	user_id: z.number(),
 	type: z.string(),
 	content: z.string(),
-	item_id: z.number(),
+	item_id: z.number().transform((arg) => (arg === 0 ? null : arg)),
 	date_recorded: z.coerce.date(),
 })
 export const wp_bp_activity = wp_bp_activitySchema.array().parse(WP_BP_ACTIVITY)
-export const wp_posts = wp_bp_activity.filter((a) => a.type === 'activity_update' && !!a.content.trim())
+export const wp_posts = wp_bp_activity.filter((a) => a.type === 'activity_update' && !a.item_id && !!a.content.trim())
 export const wp_comments = wp_bp_activity.filter((a) => a.type === 'activity_comment' && !!a.content.trim())
+export const wp_group_posts = wp_bp_activity.filter((a) => a.type === 'activity_update' && !!a.item_id && !!a.content.trim())
 
 export const wp_bp_friendsSchema = z.object({
 	id: z.number(),
@@ -36,6 +38,22 @@ export const wp_bp_groupsSchema = z.object({
 	date_created: z.coerce.date(),
 })
 export const wp_bp_groups = wp_bp_groupsSchema.array().parse(WP_BP_GROUPS)
+
+export const wp_bp_groups_membersSchema = z.object({
+	id: z.number(),
+	group_id: z.number(),
+	user_id: z.number(),
+	inviter_id: z.number().transform((arg) => (arg === 0 ? null : arg)),
+	is_admin: z.coerce.boolean(),
+	is_mod: z.coerce.boolean(),
+	user_title: z.string().transform((arg) => (!arg.trim() ? null : arg)),
+	date_modified: z.coerce.date(),
+	comments: z.string().transform((arg) => (!arg.trim() ? null : arg)),
+	is_confirmed: z.coerce.boolean(),
+	is_banned: z.coerce.boolean(),
+	invite_sent: z.coerce.boolean(),
+})
+export const wp_bp_groups_members = wp_bp_groups_membersSchema.array().parse(WP_BP_GROUPS_MEMBERS)
 
 export const wp_usersSchema = z.object({
 	ID: z.number(),

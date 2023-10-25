@@ -80,6 +80,107 @@ export interface Database {
           }
         ]
       }
+      group_members: {
+        Row: {
+          comments: string | null
+          created_at: string
+          group_id: number
+          id: number
+          invite_sent: boolean
+          inviter_id: string | null
+          is_admin: boolean
+          is_banned: boolean
+          is_confirmed: boolean
+          is_mod: boolean
+          user_id: string
+          user_title: string | null
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string
+          group_id: number
+          id?: number
+          invite_sent?: boolean
+          inviter_id?: string | null
+          is_admin?: boolean
+          is_banned?: boolean
+          is_confirmed?: boolean
+          is_mod?: boolean
+          user_id: string
+          user_title?: string | null
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string
+          group_id?: number
+          id?: number
+          invite_sent?: boolean
+          inviter_id?: string | null
+          is_admin?: boolean
+          is_banned?: boolean
+          is_confirmed?: boolean
+          is_mod?: boolean
+          user_id?: string
+          user_title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_members_inviter_id_fkey"
+            columns: ["inviter_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_members_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      group_posts: {
+        Row: {
+          body: string
+          created_at: string
+          group_id: number
+          id: number
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          group_id: number
+          id?: number
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          group_id?: number
+          id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_posts_group_id_fkey"
+            columns: ["group_id"]
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_posts_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       groups: {
         Row: {
           created_at: string
