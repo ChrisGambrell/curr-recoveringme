@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import WP_BP_ACTIVITY from './wp_data/wp_bp_activity.json'
 import WP_BP_FRIENDS from './wp_data/wp_bp_friends.json'
+import WP_BP_GROUPS from './wp_data/wp_bp_groups.json'
 import WP_USERSMETA from './wp_data/wp_usermeta.json'
 import WP_USERS from './wp_data/wp_users.json'
 
@@ -24,6 +25,17 @@ export const wp_bp_friendsSchema = z.object({
 	date_created: z.coerce.date(),
 })
 export const wp_bp_friends = wp_bp_friendsSchema.array().parse(WP_BP_FRIENDS)
+
+export const wp_bp_groupsSchema = z.object({
+	id: z.number(),
+	creator_id: z.number(),
+	name: z.string(),
+	slug: z.string(),
+	description: z.string(),
+	status: z.enum(['hidden', 'private', 'public']),
+	date_created: z.coerce.date(),
+})
+export const wp_bp_groups = wp_bp_groupsSchema.array().parse(WP_BP_GROUPS)
 
 export const wp_usersSchema = z.object({
 	ID: z.number(),

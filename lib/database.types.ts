@@ -80,6 +80,43 @@ export interface Database {
           }
         ]
       }
+      groups: {
+        Row: {
+          created_at: string
+          description: string
+          id: number
+          name: string
+          slug: string
+          status: Database["public"]["Enums"]["group_status"]
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: number
+          name: string
+          slug: string
+          status: Database["public"]["Enums"]["group_status"]
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: number
+          name?: string
+          slug?: string
+          status?: Database["public"]["Enums"]["group_status"]
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "groups_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       posts: {
         Row: {
           body: string
@@ -149,7 +186,7 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      group_status: "hidden" | "private" | "public"
     }
     CompositeTypes: {
       [_ in never]: never

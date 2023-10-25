@@ -4,33 +4,44 @@ import dotenv from 'dotenv'
 import fs from 'fs'
 import path from 'path'
 import { Database } from '../lib/database.types'
-import { wp_bp_friends, wp_comments, wp_posts, wp_users, wp_usersmeta } from './validators'
+import { wp_bp_friends, wp_bp_groups, wp_comments, wp_posts, wp_users, wp_usersmeta } from './validators'
 
 dotenv.config({ path: '.env.local' })
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY)
 	throw new Error('Missing env variables for Supabase')
 const supabase = createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY)
 
+const BATCH_SIZE = 1000
+
 const userIdMap: { [key: number]: string } = {}
-const users = wp_users.filter((u) => u.user_email.endsWith('@stepworks.com') || u.display_name.toLowerCase().includes('rich'))
+// const users = wp_users.filter((u) => u.user_email.endsWith('@stepworks.com') || u.display_name.toLowerCase().includes('rich'))
+const users = wp_users.filter(
+	(u) =>
+		wp_posts.map((p) => p.user_id).includes(u.ID) ||
+		wp_comments.map((c) => c.user_id).includes(u.ID) ||
+		wp_bp_friends.map((f) => f.initiator_user_id).includes(u.ID) ||
+		wp_bp_friends.map((f) => f.friend_user_id).includes(u.ID) ||
+		wp_bp_groups.map((g) => g.creator_id).includes(u.ID)
+)
 
 const usersIncludes = (id: number) => Object.keys(userIdMap).includes(id.toString())
 
 async function clearDatabase() {
-	const {
-		data: { users: oldUsers },
-	} = await supabase.auth.admin.listUsers({ perPage: 10000 })
-
+	const { data } = await supabase.auth.admin.listUsers({ perPage: 100000 })
 	const bar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic)
-	bar.start(oldUsers.length, 0)
+	bar.start(data.users.length, 0)
 
-	for (const u of oldUsers) {
-		await supabase.auth.admin.deleteUser(u.id)
-		bar.increment()
+	while (true) {
+		const {
+			data: { users: oldUsers },
+		} = await supabase.auth.admin.listUsers({ perPage: BATCH_SIZE })
+		if (oldUsers.length === 0) break
+		await Promise.all(oldUsers.map((u) => supabase.auth.admin.deleteUser(u.id).then(() => bar.increment())))
 	}
 
 	bar.stop()
 
+	await supabase.from('groups').delete().gt('id', 0)
 	await supabase.from('comments').delete().gt('id', 0)
 	await supabase.from('friends').delete().gt('id', 0)
 	await supabase.from('posts').delete().gt('id', 0)
@@ -38,38 +49,43 @@ async function clearDatabase() {
 }
 
 async function seedUsers(bar: cliProgress.SingleBar) {
-	for (const u of users) {
-		let avatar_url = null
+	while (users.filter((u) => usersIncludes(u.ID)).length < users.length) {
+		const currUsers = users.filter((u) => !usersIncludes(u.ID)).slice(0, BATCH_SIZE)
+		await Promise.all(
+			currUsers.map(async (u) => {
+				let avatar_url = null
 
-		try {
-			const files = fs.readdirSync(path.join(__dirname, `wp_data/rme_backup/wp-content/uploads/avatars/${u.ID}`))
-			avatar_url =
-				files.length > 0
-					? `https://app.recoveringme.com/wp-content/uploads/avatars/${u.ID}/${
-							files.find((f) => f.includes('bpfull')) ?? files[0]
-					  }`
-					: null
-		} catch (err) {}
+				try {
+					const files = fs.readdirSync(path.join(__dirname, `wp_data/rme_backup/wp-content/uploads/avatars/${u.ID}`))
+					avatar_url =
+						files.length > 0
+							? `https://app.recoveringme.com/wp-content/uploads/avatars/${u.ID}/${
+									files.find((f) => f.includes('bpfull')) ?? files[0]
+							  }`
+							: null
+				} catch (err) {}
 
-		const {
-			data: { user },
-		} = await supabase.auth.admin.createUser({
-			email: u.user_email,
-			password: 'Passw0rd!',
-			user_metadata: {
-				first_name: wp_usersmeta.find((m) => m.user_id === u.ID && m.meta_key === 'first_name')?.meta_value || '',
-				last_name: wp_usersmeta.find((m) => m.user_id === u.ID && m.meta_key === 'last_name')?.meta_value || '',
-				display_name: u.display_name,
-				username: u.user_nicename,
-				email: u.user_email,
-				avatar_url,
-				created_at: u.user_registered.toISOString(),
-			},
-			email_confirm: true,
-		})
+				const {
+					data: { user },
+				} = await supabase.auth.admin.createUser({
+					email: u.user_email,
+					password: 'Passw0rd!',
+					user_metadata: {
+						first_name: wp_usersmeta.find((m) => m.user_id === u.ID && m.meta_key === 'first_name')?.meta_value || '',
+						last_name: wp_usersmeta.find((m) => m.user_id === u.ID && m.meta_key === 'last_name')?.meta_value || '',
+						display_name: u.display_name,
+						username: u.user_nicename,
+						email: u.user_email,
+						avatar_url,
+						created_at: u.user_registered.toISOString(),
+					},
+					email_confirm: true,
+				})
 
-		if (user) userIdMap[u.ID] = user.id
-		bar.increment()
+				if (user) userIdMap[u.ID] = user.id
+				bar.increment()
+			})
+		)
 	}
 }
 
@@ -112,6 +128,24 @@ async function seedFriends(friends: typeof wp_bp_friends, bar: cliProgress.Singl
 	bar.update(data?.length || 0)
 }
 
+async function seedGroups(groups: typeof wp_bp_groups, bar: cliProgress.SingleBar) {
+	const { data } = await supabase
+		.from('groups')
+		.insert(
+			groups.map((g) => ({
+				id: g.id,
+				created_at: g.date_created.toISOString(),
+				user_id: userIdMap[g.creator_id] || null,
+				name: g.name,
+				slug: g.slug,
+				description: g.description,
+				status: g.status,
+			}))
+		)
+		.select('id')
+	bar.update(data?.length || 0)
+}
+
 async function main() {
 	console.log('Clearing the database...')
 	await clearDatabase()
@@ -128,6 +162,7 @@ async function main() {
 	const posts = wp_posts.filter((p) => usersIncludes(p.user_id))
 	const comments = wp_comments.filter((c) => usersIncludes(c.user_id) && posts.map((p) => p.id).includes(c.item_id))
 	const friends = wp_bp_friends.filter((f) => usersIncludes(f.initiator_user_id) && usersIncludes(f.friend_user_id) && f.is_confirmed)
+	const groups = wp_bp_groups
 
 	const bars = new cliProgress.MultiBar(
 		{ clearOnComplete: false, hideCursor: true, format: ' {bar} | {table} | {percentage}% | {eta}s | {value}/{total}' },
@@ -136,10 +171,12 @@ async function main() {
 	const postsBar = bars.create(posts.length, 0, { table: 'posts' })
 	const commentsBar = bars.create(comments.length, 0, { table: 'comments' })
 	const friendsBar = bars.create(friends.length, 0, { table: 'friends' })
+	const groupsBar = bars.create(groups.length, 0, { table: 'groups' })
 
 	await seedPosts(posts, postsBar)
 	await seedComments(comments, commentsBar)
 	await seedFriends(friends, friendsBar)
+	await seedGroups(groups, groupsBar)
 
 	bars.stop()
 }
