@@ -9,6 +9,7 @@ export const wp_bp_activitySchema = z.object({
 	user_id: z.number(),
 	type: z.string(),
 	content: z.string(),
+	item_id: z.number(),
 	date_recorded: z.coerce.date(),
 })
 export const wp_bp_activity = wp_bp_activitySchema.array().parse(WP_BP_ACTIVITY)

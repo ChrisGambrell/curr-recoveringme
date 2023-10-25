@@ -62,13 +62,14 @@ async function main() {
 			})
 	)
 
-	await supabase
+	const { data: posts } = await supabase
 		.from('posts')
 		.insert(
 			wp_bp_activity
 				.filter((a) => a.type === 'activity_update' && Object.keys(userIdMap).includes(a.user_id.toString()))
 				.map((a) => ({ id: a.id, created_at: a.date_recorded.toISOString(), body: a.content, user_id: userIdMap[a.user_id] }))
 		)
+		.select('id')
 
 	await supabase.from('friends').insert(
 		wp_bp_friends
@@ -83,6 +84,23 @@ async function main() {
 				created_at: f.date_created.toISOString(),
 				initiator_id: userIdMap[f.initiator_user_id],
 				friend_id: userIdMap[f.friend_user_id],
+			}))
+	)
+
+	await supabase.from('comments').insert(
+		wp_bp_activity
+			.filter(
+				(c) =>
+					c.type === 'activity_comment' &&
+					Object.keys(userIdMap).includes(c.user_id.toString()) &&
+					posts?.map((p) => p.id).includes(c.item_id)
+			)
+			.map((c) => ({
+				id: c.id,
+				created_at: c.date_recorded.toISOString(),
+				body: c.content,
+				post_id: c.item_id,
+				user_id: userIdMap[c.user_id],
 			}))
 	)
 }
