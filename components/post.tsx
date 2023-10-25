@@ -1,6 +1,7 @@
 import dayjs from 'dayjs'
 import { MessageCircleIcon, MoreVerticalIcon, PencilIcon, ThumbsUpIcon, TrashIcon } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 
 export default function Post({ post }: { post: PostWithAuthor }) {
@@ -10,8 +11,9 @@ export default function Post({ post }: { post: PostWithAuthor }) {
 				<div className='flex items-center flex-1 space-x-3'>
 					<Image className='rounded-full' src={post.author.avatar_url} alt={post.author.display_name} width={40} height={40} />
 					<div className='-space-y-0.5'>
-						{/* TODO: Make this linkable */}
-						<div className='inline font-semibold cursor-pointer hover:underline'>{post.author.display_name}</div>
+						<Link className='inline font-semibold cursor-pointer hover:underline' href={`/profile/${post.author.username}`}>
+							{post.author.display_name}
+						</Link>
 						<div className='text-foreground/50'>{dayjs(post.created_at).format('MMM. D, YYYY [a]t h:mma')}</div>
 					</div>
 				</div>

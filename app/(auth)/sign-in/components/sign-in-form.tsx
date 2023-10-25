@@ -64,7 +64,7 @@ export default function SignInForm() {
 				/>
 				<div className='flex items-center justify-between'>
 					<Button disabled={loading} type='submit'>
-						{loading && <Loading />}Sign in
+						{loading ? <Loading /> : 'Sign in'}
 					</Button>
 					<Button asChild className='block' variant='link'>
 						<Link href='/forgot-password'>Forgot password</Link>

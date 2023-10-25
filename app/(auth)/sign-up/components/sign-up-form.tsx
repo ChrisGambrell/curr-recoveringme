@@ -76,7 +76,7 @@ export default function SignUpForm() {
 
 	return (
 		<Form {...form}>
-			<form className='grid sm:grid-cols-2 gap-4' onSubmit={form.handleSubmit(onSubmit)}>
+			<form className='grid gap-4 sm:grid-cols-2' onSubmit={form.handleSubmit(onSubmit)}>
 				<FormField
 					control={form.control}
 					name='first_name'
@@ -129,7 +129,7 @@ export default function SignUpForm() {
 					control={form.control}
 					name='email'
 					render={({ field }) => (
-						<FormItem className='col-span-full col-start-1'>
+						<FormItem className='col-start-1 col-span-full'>
 							<FormControl>
 								<Input placeholder='Email address' {...field} />
 							</FormControl>
@@ -163,9 +163,9 @@ export default function SignUpForm() {
 				/>
 				{/* TODO: Text here */}
 				{/* TODO: Checkbox */}
-				<div className='space-y-4 sm:space-y-0 col-span-full flex flex-col sm:flex-row sm:items-center sm:justify-between'>
+				<div className='flex flex-col space-y-4 sm:space-y-0 col-span-full sm:flex-row sm:items-center sm:justify-between'>
 					<Button className='w-fit' disabled={loading} type='submit'>
-						{loading && <Loading />}Sign up
+						{loading ? <Loading /> : 'Sign up'}
 					</Button>
 					<Button asChild className='w-fit' variant='link'>
 						<Link href='/sign-in'>I already have an account</Link>
