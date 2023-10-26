@@ -46,6 +46,55 @@ export interface Database {
           }
         ]
       }
+      conversation_members: {
+        Row: {
+          conversation_id: number
+          created_at: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          conversation_id: number
+          created_at?: string
+          id?: number
+          user_id: string
+        }
+        Update: {
+          conversation_id?: number
+          created_at?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_members_conversation_id_fkey"
+            columns: ["conversation_id"]
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_members_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
       friends: {
         Row: {
           created_at: string
@@ -212,6 +261,43 @@ export interface Database {
         Relationships: [
           {
             foreignKeyName: "groups_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      messages: {
+        Row: {
+          body: string
+          conversation_id: number
+          created_at: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          body: string
+          conversation_id: number
+          created_at?: string
+          id?: number
+          user_id: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: number
+          created_at?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_user_id_fkey"
             columns: ["user_id"]
             referencedRelation: "profiles"
             referencedColumns: ["id"]

@@ -3,6 +3,8 @@ import WP_BP_ACTIVITY from './wp_data/wp_bp_activity.json'
 import WP_BP_FRIENDS from './wp_data/wp_bp_friends.json'
 import WP_BP_GROUPS from './wp_data/wp_bp_groups.json'
 import WP_BP_GROUPS_MEMBERS from './wp_data/wp_bp_groups_members.json'
+import WP_BP_MESSAGES_MESSAGES from './wp_data/wp_bp_messages_messages.json'
+import WP_BP_MESSAGES_RECIPIENTS from './wp_data/wp_bp_messages_recipients.json'
 import WP_USERSMETA from './wp_data/wp_usermeta.json'
 import WP_USERS from './wp_data/wp_users.json'
 
@@ -54,6 +56,23 @@ export const wp_bp_groups_membersSchema = z.object({
 	invite_sent: z.coerce.boolean(),
 })
 export const wp_bp_groups_members = wp_bp_groups_membersSchema.array().parse(WP_BP_GROUPS_MEMBERS)
+
+export const wp_bp_messages_messagesSchema = z.object({
+	id: z.number(),
+	thread_id: z.number(),
+	sender_id: z.number(),
+	message: z.string(),
+	date_sent: z.coerce.date(),
+})
+export const wp_bp_messages_messages = wp_bp_messages_messagesSchema.array().parse(WP_BP_MESSAGES_MESSAGES)
+
+export const wp_bp_messages_recipientsSchema = z.object({
+	id: z.number(),
+	user_id: z.number(),
+	thread_id: z.number(),
+	is_deleted: z.coerce.boolean(),
+})
+export const wp_bp_messages_recipients = wp_bp_messages_recipientsSchema.array().parse(WP_BP_MESSAGES_RECIPIENTS)
 
 export const wp_usersSchema = z.object({
 	ID: z.number(),
