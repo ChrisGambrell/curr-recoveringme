@@ -5,17 +5,17 @@ const navLinks: NavItemProps[] = [
 	// TODO: This page needs to be completed
 	{ exact: true, href: '/', icon: <HomeIcon /> },
 	// TODO: This page needs to be completed
-	{ href: '/treatment', icon: <LifeBuoyIcon /> },
+	// { href: '/treatment', icon: <LifeBuoyIcon /> },
 	// TODO: This page needs to be completed
-	{ href: '/therapy', icon: <LaptopIcon /> },
+	// { href: '/therapy', icon: <LaptopIcon /> },
 	// TODO: This page needs to be completed
 	{ href: '/groups', icon: <Users2Icon /> },
 	// TODO: This page needs to be completed
-	{ href: '/library', icon: <LandmarkIcon /> },
+	// { href: '/library', icon: <LandmarkIcon /> },
 	// TODO: This page needs to be completed
 	{ href: '/messages', icon: <InboxIcon /> },
 	// TODO: This page needs to be completed
-	{ href: '/help', icon: <HelpCircleIcon /> },
+	// { href: '/help', icon: <HelpCircleIcon /> },
 ]
 
 export default function Sidebar() {
