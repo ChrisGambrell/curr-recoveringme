@@ -23,20 +23,20 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_S
 	throw new Error('Missing env variables for Supabase')
 const supabase = createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY)
 
-const BATCH_SIZE = 1000
+const BATCH_SIZE = 500
 
 const userIdMap: { [key: number]: string } = {}
-const users = wp_users.filter((u) => u.user_email.endsWith('@stepworks.com') || u.display_name.toLowerCase().includes('rich'))
-// const users = wp_users.filter(
-// 	(u) =>
-// 		wp_bp_friends.map((f) => f.friend_user_id).includes(u.ID) ||
-// 		wp_bp_friends.map((f) => f.initiator_user_id).includes(u.ID) ||
-// 		wp_bp_groups_members.map((g) => g.user_id).includes(u.ID) ||
-// 		wp_group_posts.map((g) => g.user_id).includes(u.ID) ||
-// 		wp_bp_groups.map((g) => g.creator_id).includes(u.ID) ||
-// 		wp_comments.map((c) => c.user_id).includes(u.ID) ||
-// 		wp_posts.map((p) => p.user_id).includes(u.ID)
-// )
+// const users = wp_users.filter((u) => u.user_email.endsWith('@stepworks.com') || u.display_name.toLowerCase().includes('rich'))
+const users = wp_users.filter(
+	(u) =>
+		wp_bp_friends.map((f) => f.friend_user_id).includes(u.ID) ||
+		wp_bp_friends.map((f) => f.initiator_user_id).includes(u.ID) ||
+		wp_bp_groups_members.map((g) => g.user_id).includes(u.ID) ||
+		wp_group_posts.map((g) => g.user_id).includes(u.ID) ||
+		wp_bp_groups.map((g) => g.creator_id).includes(u.ID) ||
+		wp_comments.map((c) => c.user_id).includes(u.ID) ||
+		wp_posts.map((p) => p.user_id).includes(u.ID)
+)
 
 const usersIncludes = (id: number) => Object.keys(userIdMap).includes(id.toString())
 
@@ -88,11 +88,12 @@ async function seedComments(comments: typeof wp_comments, bar: cliProgress.Singl
 	return data?.map((d) => d.id) || []
 }
 
-async function seedConversationMembers(conversationMembers: typeof wp_bp_messages_recipients, bar: cliProgress.SingleBar) {
-	const { data } = await supabase
+async function seedConversationMembers(conversationMembers: { thread_id: number; user_id: number }[], bar: cliProgress.SingleBar) {
+	const { data, error } = await supabase
 		.from('conversation_members')
-		.insert(conversationMembers.map((r) => ({ id: r.id, conversation_id: r.thread_id, user_id: userIdMap[r.user_id] })))
+		.insert(conversationMembers.map((r) => ({ conversation_id: r.thread_id, user_id: userIdMap[r.user_id] })))
 		.select('id')
+	if (error) throw error.message
 	bar.update(data?.length || 0)
 	return data?.map((d) => d.id) || []
 }
@@ -247,6 +248,33 @@ async function seedUsers(bar: cliProgress.SingleBar) {
 		)
 }
 
+type CombinedThread = {
+	threadId: number
+	originalThreads: number[]
+	users: number[]
+}
+function combineThreads(data: typeof wp_bp_messages_recipients): CombinedThread[] {
+	const threadMap: Record<number, number[]> = {}
+	const combinedThreads: Record<string, CombinedThread> = {}
+
+	for (const item of data) {
+		const { thread_id, user_id } = item
+		if (!threadMap[thread_id]) threadMap[thread_id] = []
+		threadMap[thread_id].push(user_id)
+	}
+
+	for (const threadId in threadMap) {
+		const users = threadMap[threadId]
+		const key = users.toString()
+
+		if (combinedThreads[key]) combinedThreads[key].originalThreads.push(parseInt(threadId))
+		else combinedThreads[key] = { threadId: parseInt(threadId), originalThreads: [parseInt(threadId)], users }
+	}
+
+	const result: CombinedThread[] = Object.values(combinedThreads)
+	return result
+}
+
 async function main() {
 	console.log('Clearing the database...')
 	await clearDatabase()
@@ -263,17 +291,16 @@ async function main() {
 
 	const posts = wp_posts.filter((p) => usersIncludes(p.user_id))
 	const comments = wp_comments.filter((c) => usersIncludes(c.user_id) && !!posts.find((p) => p.id === c.item_id))
-	const conversations = wp_bp_messages_recipients
-		.filter((r) => !r.is_deleted && usersIncludes(r.user_id))
-		.reduce((prev, curr) => (prev.includes(curr.thread_id) ? prev : prev.concat([curr.thread_id])), [] as number[])
-	const conversationMembers = wp_bp_messages_recipients.filter(
-		(r) => !r.is_deleted && conversations.includes(r.thread_id) && usersIncludes(r.user_id)
-	)
+	const conversations = combineThreads(wp_bp_messages_recipients.filter((r) => usersIncludes(r.user_id)))
 	const friends = wp_bp_friends.filter((f) => usersIncludes(f.friend_user_id) && usersIncludes(f.initiator_user_id) && f.is_confirmed)
 	const groups = wp_bp_groups
 	const groupMembers = wp_bp_groups_members.filter((g) => usersIncludes(g.user_id) && !!groups.find((gg) => gg.id === g.group_id))
 	const groupPosts = wp_group_posts.filter((g) => usersIncludes(g.user_id) && !!groups.find((gg) => gg.id === g.item_id))
-	const messages = wp_bp_messages_messages.filter((m) => usersIncludes(m.sender_id) && conversations.includes(m.thread_id))
+	const messages = wp_bp_messages_messages.filter(
+		(m) =>
+			usersIncludes(m.sender_id) &&
+			conversations.reduce((prev, curr) => prev.concat(curr.originalThreads), [] as number[]).includes(m.thread_id)
+	)
 
 	const bars = new cliProgress.MultiBar(
 		{ clearOnComplete: false, hideCursor: true, format: ' {bar} | {table} | {percentage}% | {eta}s | {value}/{total}' },
@@ -281,7 +308,11 @@ async function main() {
 	)
 	const postsBar = bars.create(posts.length, 0, { table: 'posts' })
 	const commentsBar = bars.create(comments.length, 0, { table: 'comments' })
-	const conversationMembersBar = bars.create(conversationMembers.length, 0, { table: 'conversation_members' })
+	const conversationMembersBar = bars.create(
+		conversations.reduce((prev, curr) => prev + curr.originalThreads.length, 0),
+		0,
+		{ table: 'conversation_members' }
+	)
 	const conversationsBar = bars.create(conversations.length, 0, { table: 'conversations' })
 	const friendsBar = bars.create(friends.length, 0, { table: 'friends' })
 	const groupsBar = bars.create(groups.length, 0, { table: 'groups' })
@@ -291,13 +322,25 @@ async function main() {
 
 	await seedPosts(posts, postsBar)
 	await seedComments(comments, commentsBar)
-	await seedConversations(conversations, conversationsBar)
-	await seedConversationMembers(conversationMembers, conversationMembersBar)
+	await seedConversations(
+		conversations.map((c) => c.threadId),
+		conversationsBar
+	)
+	await seedConversationMembers(
+		conversations.reduce(
+			(prev, curr) => prev.concat(curr.users.map((u) => ({ thread_id: curr.threadId, user_id: u }))),
+			[] as { thread_id: number; user_id: number }[]
+		),
+		conversationMembersBar
+	)
 	await seedFriends(friends, friendsBar)
 	await seedGroups(groups, groupsBar)
 	await seedGroupMembers(groupMembers, groupMembersBar)
 	await seedGroupPosts(groupPosts, groupPostsBar)
-	await seedMessages(messages, messagesBar)
+	await seedMessages(
+		messages.map((m) => ({ ...m, thread_id: conversations.find((c) => c.originalThreads.includes(m.thread_id))!.threadId })),
+		messagesBar
+	)
 
 	bars.stop()
 }
