@@ -2,7 +2,7 @@
 
 import Loading from '@/components/loading'
 import { Button } from '@/components/ui/button'
-import { supabaseClient } from '@/lib/supabase.client'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -20,9 +20,12 @@ export default function ActionButtons({
 
 	const handleToggleFriend = async () => {
 		setIsLoading(true)
-		if (isFriend) await supabaseClient.from('friends').delete().eq('initiator_id', authedUserId).eq('friend_id', profileId)
-		else await supabaseClient.from('friends').insert({ initiator_id: authedUserId, friend_id: profileId })
+
+		const supabase = createClientComponentClient<Database>()
+		if (isFriend) await supabase.from('friends').delete().eq('initiator_id', authedUserId).eq('friend_id', profileId)
+		else await supabase.from('friends').insert({ initiator_id: authedUserId, friend_id: profileId })
 		router.refresh()
+
 		setIsLoading(false)
 	}
 

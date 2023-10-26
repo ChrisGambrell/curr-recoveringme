@@ -1,11 +1,12 @@
 import Post from '@/components/post'
-import { supabaseServer } from '@/lib/supabase.server'
+import { createServerSupabase } from '@/lib/supabase.server'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 
 export default async function FeedPage() {
-	const { data } = await supabaseServer
-		.from('posts')
-		.select('*, author:profiles(*), comments(*)')
-		.order('created_at', { ascending: false })
+	const supabase = createServerSupabase()
+
+	const { data } = await supabase.from('posts').select('*, author:profiles(*), comments(*)').order('created_at', { ascending: false })
 	const posts =
 		data?.map((post) => ({
 			...post,

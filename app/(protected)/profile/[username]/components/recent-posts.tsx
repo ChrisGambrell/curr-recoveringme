@@ -1,8 +1,12 @@
 import Post from '@/components/post'
-import { supabaseServer } from '@/lib/supabase.server'
+import { createServerSupabase } from '@/lib/supabase.server'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 
 export default async function RecentPosts({ profileId }: { profileId: string }) {
-	const { data } = await supabaseServer
+	const supabase = createServerSupabase()
+
+	const { data } = await supabase
 		.from('posts')
 		.select('*, author:profiles(*), comments(*)')
 		.eq('user_id', profileId)

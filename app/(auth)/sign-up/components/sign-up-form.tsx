@@ -4,8 +4,8 @@ import Loading from '@/components/loading'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { supabaseClient } from '@/lib/supabase.client'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -41,16 +41,15 @@ export default function SignUpForm() {
 			return toast.error('Passwords do not match')
 		}
 
-		const { data: existingUser, error: existingUserError } = await supabaseClient
-			.from('profiles')
-			.select()
-			.eq('username', data.username)
+		const supabase = createClientComponentClient<Database>()
+
+		const { data: existingUser, error: existingUserError } = await supabase.from('profiles').select().eq('username', data.username)
 		if (existingUserError || existingUser.length > 0) {
 			setLoading(false)
 			return toast.error(existingUserError?.message || 'Username already taken')
 		}
 
-		const { error } = await supabaseClient.auth.signUp({
+		const { error } = await supabase.auth.signUp({
 			email: data.email,
 			password: data.password,
 			options: {

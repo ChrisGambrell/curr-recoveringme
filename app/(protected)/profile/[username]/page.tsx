@@ -1,23 +1,20 @@
 import Heading from '@/components/heading'
-import { Button } from '@/components/ui/button'
-import { getAuth, supabaseServer } from '@/lib/supabase.server'
-import { cn } from '@/lib/utils'
+import { createServerSupabase, getAuth } from '@/lib/supabase.server'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 import Image from 'next/image'
 import ActionButtons from './components/action-buttons'
 import RecentPosts from './components/recent-posts'
 
 export default async function ProfileDetails({ params: { username } }: { params: { username: string } }) {
-	const { data: profile } = await supabaseServer.from('profiles').select().eq('username', username).single()
+	const supabase = createServerSupabase()
+
+	const { data: profile } = await supabase.from('profiles').select().eq('username', username).single()
 	// FIXME: Handle missing profile error
 	if (!profile) throw new Error('Profile not found')
 
 	const authedUser = await getAuth()
-	const { data: friend } = await supabaseServer
-		.from('friends')
-		.select()
-		.eq('initiator_id', authedUser.id)
-		.eq('friend_id', profile.id)
-		.single()
+	const { data: friend } = await supabase.from('friends').select().eq('initiator_id', authedUser.id).eq('friend_id', profile.id).single()
 	const isFriend = !!friend
 
 	return (

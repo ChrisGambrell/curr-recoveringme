@@ -4,8 +4,8 @@ import Loading from '@/components/loading'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { supabaseClient } from '@/lib/supabase.client'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -24,7 +24,9 @@ export default function SignInForm() {
 
 	const onSubmit = async (data: TForm) => {
 		setLoading(true)
-		const { error } = await supabaseClient.auth.signInWithPassword(data)
+
+		const supabase = createClientComponentClient<Database>()
+		const { error } = await supabase.auth.signInWithPassword(data)
 
 		if (error) toast.error(error.message)
 		else {
