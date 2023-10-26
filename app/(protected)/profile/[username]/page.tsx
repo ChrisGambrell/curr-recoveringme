@@ -57,7 +57,7 @@ export default async function ProfileDetails({ params: { username } }: { params:
 			</div>
 			<div className='space-y-2'>
 				<Heading variant={3}>Recent Posts</Heading>
-				{isFriend ? (
+				{isFriend || profile.id === authedUser.id ? (
 					<RecentPosts profileId={profile.id} />
 				) : (
 					<div className='text-sm italic text-foreground/50'>Follow this user to see their posts.</div>
