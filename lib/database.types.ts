@@ -11,59 +11,62 @@ export interface Database {
     Tables: {
       comments: {
         Row: {
+          author_id: string
           body: string
           created_at: string
-          id: number
-          post_id: number
-          user_id: string
+          id: string
+          post_id: string
+          updated_at: string
         }
         Insert: {
+          author_id: string
           body: string
           created_at?: string
-          id?: number
-          post_id: number
-          user_id: string
+          id?: string
+          post_id: string
+          updated_at?: string
         }
         Update: {
+          author_id?: string
           body?: string
           created_at?: string
-          id?: number
-          post_id?: number
-          user_id?: string
+          id?: string
+          post_id?: string
+          updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "comments_author_id_fkey"
+            columns: ["author_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "comments_post_id_fkey"
             columns: ["post_id"]
             referencedRelation: "posts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "comments_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
         ]
       }
       conversation_members: {
         Row: {
-          conversation_id: number
+          conversation_id: string
           created_at: string
-          id: number
-          user_id: string
+          id: string
+          member_id: string
         }
         Insert: {
-          conversation_id: number
+          conversation_id: string
           created_at?: string
-          id?: number
-          user_id: string
+          id?: string
+          member_id: string
         }
         Update: {
-          conversation_id?: number
+          conversation_id?: string
           created_at?: string
-          id?: number
-          user_id?: string
+          id?: string
+          member_id?: string
         }
         Relationships: [
           {
@@ -73,8 +76,8 @@ export interface Database {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "conversation_members_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "conversation_members_member_id_fkey"
+            columns: ["member_id"]
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
@@ -83,15 +86,18 @@ export interface Database {
       conversations: {
         Row: {
           created_at: string
-          id: number
+          id: string
+          updated_at: string
         }
         Insert: {
           created_at?: string
-          id?: number
+          id?: string
+          updated_at?: string
         }
         Update: {
           created_at?: string
-          id?: number
+          id?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -99,19 +105,19 @@ export interface Database {
         Row: {
           created_at: string
           friend_id: string
-          id: number
+          id: string
           initiator_id: string
         }
         Insert: {
           created_at?: string
           friend_id: string
-          id?: number
+          id?: string
           initiator_id: string
         }
         Update: {
           created_at?: string
           friend_id?: string
-          id?: number
+          id?: string
           initiator_id?: string
         }
         Relationships: [
@@ -131,46 +137,22 @@ export interface Database {
       }
       group_members: {
         Row: {
-          comments: string | null
           created_at: string
-          group_id: number
-          id: number
-          invite_sent: boolean
-          inviter_id: string | null
-          is_admin: boolean
-          is_banned: boolean
-          is_confirmed: boolean
-          is_mod: boolean
-          user_id: string
-          user_title: string | null
+          group_id: string
+          id: string
+          member_id: string
         }
         Insert: {
-          comments?: string | null
           created_at?: string
-          group_id: number
-          id?: number
-          invite_sent?: boolean
-          inviter_id?: string | null
-          is_admin?: boolean
-          is_banned?: boolean
-          is_confirmed?: boolean
-          is_mod?: boolean
-          user_id: string
-          user_title?: string | null
+          group_id: string
+          id?: string
+          member_id: string
         }
         Update: {
-          comments?: string | null
           created_at?: string
-          group_id?: number
-          id?: number
-          invite_sent?: boolean
-          inviter_id?: string | null
-          is_admin?: boolean
-          is_banned?: boolean
-          is_confirmed?: boolean
-          is_mod?: boolean
-          user_id?: string
-          user_title?: string | null
+          group_id?: string
+          id?: string
+          member_id?: string
         }
         Relationships: [
           {
@@ -180,14 +162,8 @@ export interface Database {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "group_members_inviter_id_fkey"
-            columns: ["inviter_id"]
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "group_members_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "group_members_member_id_fkey"
+            columns: ["member_id"]
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
@@ -195,37 +171,40 @@ export interface Database {
       }
       group_posts: {
         Row: {
+          author_id: string
           body: string
           created_at: string
-          group_id: number
-          id: number
-          user_id: string
+          group_id: string
+          id: string
+          updated_at: string
         }
         Insert: {
+          author_id: string
           body: string
           created_at?: string
-          group_id: number
-          id?: number
-          user_id: string
+          group_id: string
+          id?: string
+          updated_at?: string
         }
         Update: {
+          author_id?: string
           body?: string
           created_at?: string
-          group_id?: number
-          id?: number
-          user_id?: string
+          group_id?: string
+          id?: string
+          updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "group_posts_author_id_fkey"
+            columns: ["author_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "group_posts_group_id_fkey"
             columns: ["group_id"]
             referencedRelation: "groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "group_posts_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
         ]
@@ -233,35 +212,38 @@ export interface Database {
       groups: {
         Row: {
           created_at: string
-          description: string
-          id: number
+          description: string | null
+          id: string
           name: string
+          owner_id: string
           slug: string
           status: Database["public"]["Enums"]["group_status"]
-          user_id: string | null
+          updated_at: string
         }
         Insert: {
           created_at?: string
-          description: string
-          id?: number
+          description?: string | null
+          id?: string
           name: string
+          owner_id: string
           slug: string
-          status: Database["public"]["Enums"]["group_status"]
-          user_id?: string | null
+          status?: Database["public"]["Enums"]["group_status"]
+          updated_at?: string
         }
         Update: {
           created_at?: string
-          description?: string
-          id?: number
+          description?: string | null
+          id?: string
           name?: string
+          owner_id?: string
           slug?: string
           status?: Database["public"]["Enums"]["group_status"]
-          user_id?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "groups_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "groups_owner_id_fkey"
+            columns: ["owner_id"]
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
@@ -269,64 +251,70 @@ export interface Database {
       }
       messages: {
         Row: {
+          author_id: string
           body: string
-          conversation_id: number
+          conversation_id: string
           created_at: string
-          id: number
-          user_id: string
+          id: string
+          updated_at: string
         }
         Insert: {
+          author_id: string
           body: string
-          conversation_id: number
+          conversation_id: string
           created_at?: string
-          id?: number
-          user_id: string
+          id?: string
+          updated_at?: string
         }
         Update: {
+          author_id?: string
           body?: string
-          conversation_id?: number
+          conversation_id?: string
           created_at?: string
-          id?: number
-          user_id?: string
+          id?: string
+          updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "messages_author_id_fkey"
+            columns: ["author_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "messages_conversation_id_fkey"
             columns: ["conversation_id"]
             referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
         ]
       }
       posts: {
         Row: {
+          author_id: string
           body: string
           created_at: string
-          id: number
-          user_id: string
+          id: string
+          updated_at: string
         }
         Insert: {
+          author_id: string
           body: string
           created_at?: string
-          id?: number
-          user_id: string
+          id?: string
+          updated_at?: string
         }
         Update: {
+          author_id?: string
           body?: string
           created_at?: string
-          id?: number
-          user_id?: string
+          id?: string
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "posts_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "posts_author_id_fkey"
+            columns: ["author_id"]
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
@@ -341,6 +329,7 @@ export interface Database {
           first_name: string
           id: string
           last_name: string
+          updated_at: string
           username: string
         }
         Insert: {
@@ -349,8 +338,9 @@ export interface Database {
           display_name: string
           email: string
           first_name: string
-          id?: string
+          id: string
           last_name: string
+          updated_at?: string
           username: string
         }
         Update: {
@@ -361,16 +351,44 @@ export interface Database {
           first_name?: string
           id?: string
           last_name?: string
+          updated_at?: string
           username?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_conversation_member: {
+        Args: {
+          conversation_id: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_friend: {
+        Args: {
+          _friend_id: string
+          _initiator_id: string
+        }
+        Returns: boolean
+      }
+      is_group_member: {
+        Args: {
+          _group_id: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       group_status: "hidden" | "private" | "public"
