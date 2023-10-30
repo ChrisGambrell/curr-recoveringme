@@ -88,16 +88,19 @@ export interface Database {
           created_at: string
           id: string
           updated_at: string
+          wp_id: number
         }
         Insert: {
           created_at?: string
           id?: string
           updated_at?: string
+          wp_id: number
         }
         Update: {
           created_at?: string
           id?: string
           updated_at?: string
+          wp_id?: number
         }
         Relationships: []
       }
@@ -212,33 +215,36 @@ export interface Database {
       groups: {
         Row: {
           created_at: string
-          description: string | null
+          description: string
           id: string
           name: string
           owner_id: string
           slug: string
           status: Database["public"]["Enums"]["group_status"]
           updated_at: string
+          wp_id: number
         }
         Insert: {
           created_at?: string
-          description?: string | null
+          description: string
           id?: string
           name: string
           owner_id: string
           slug: string
           status?: Database["public"]["Enums"]["group_status"]
           updated_at?: string
+          wp_id: number
         }
         Update: {
           created_at?: string
-          description?: string | null
+          description?: string
           id?: string
           name?: string
           owner_id?: string
           slug?: string
           status?: Database["public"]["Enums"]["group_status"]
           updated_at?: string
+          wp_id?: number
         }
         Relationships: [
           {
@@ -251,40 +257,40 @@ export interface Database {
       }
       messages: {
         Row: {
-          author_id: string
           body: string
           conversation_id: string
           created_at: string
           id: string
+          sender_id: string
           updated_at: string
         }
         Insert: {
-          author_id: string
           body: string
           conversation_id: string
           created_at?: string
           id?: string
+          sender_id: string
           updated_at?: string
         }
         Update: {
-          author_id?: string
           body?: string
           conversation_id?: string
           created_at?: string
           id?: string
+          sender_id?: string
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "messages_author_id_fkey"
-            columns: ["author_id"]
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "messages_conversation_id_fkey"
             columns: ["conversation_id"]
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
         ]
@@ -296,6 +302,7 @@ export interface Database {
           created_at: string
           id: string
           updated_at: string
+          wp_id: number
         }
         Insert: {
           author_id: string
@@ -303,6 +310,7 @@ export interface Database {
           created_at?: string
           id?: string
           updated_at?: string
+          wp_id: number
         }
         Update: {
           author_id?: string
@@ -310,6 +318,7 @@ export interface Database {
           created_at?: string
           id?: string
           updated_at?: string
+          wp_id?: number
         }
         Relationships: [
           {

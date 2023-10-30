@@ -1,7 +1,9 @@
 create table public.conversations (
     id uuid not null default uuid_generate_v4() primary key,
     created_at timestamptz not null default timezone('utc'::text, now()),
-    updated_at timestamptz not null default timezone('utc'::text, now())
+    updated_at timestamptz not null default timezone('utc'::text, now()),
+    -- TODO: Remove this wp_id
+    wp_id int8 not null unique
 );
 
 create table public.conversation_members (

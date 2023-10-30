@@ -7,8 +7,10 @@ create table public.groups (
     owner_id uuid not null references public.profiles on delete cascade,
     name text not null,
     slug text not null unique,
-    description text default null,
-    status group_status not null default 'public'
+    description text not null,
+    status group_status not null default 'public',
+    -- TODO: Remove this wp_id
+    wp_id int8 not null unique
 );
 
 create table public.group_members (

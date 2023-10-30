@@ -3,7 +3,9 @@ create table public.posts (
     created_at timestamptz not null default timezone('utc'::text, now()),
     updated_at timestamptz not null default timezone('utc'::text, now()),
     author_id uuid not null references public.profiles on delete cascade,
-    body text not null
+    body text not null,
+    -- TODO: Remove this wp_id
+    wp_id int8 not null unique
 );
 
 alter table public.posts enable row level security;
