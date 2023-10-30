@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Button } from '../ui/button'
 import {
@@ -18,7 +19,6 @@ export default function UserNav({ user }: { user: Profile }) {
 				<Button variant='ghost' className='relative w-8 h-8 rounded-full'>
 					<Avatar className='w-8 h-8'>
 						<AvatarImage src={user.avatar_url} alt={user.display_name} />
-						<AvatarFallback>SC</AvatarFallback>
 					</Avatar>
 				</Button>
 			</DropdownMenuTrigger>
@@ -31,8 +31,9 @@ export default function UserNav({ user }: { user: Profile }) {
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
-					{/* TODO: This page needs to be completed */}
-					<DropdownMenuItem>Profile</DropdownMenuItem>
+					<DropdownMenuItem asChild>
+						<Link href={`/profile/${user.username}`}>Profile</Link>
+					</DropdownMenuItem>
 					{/* TODO: This page needs to be completed */}
 					<DropdownMenuItem>Billing</DropdownMenuItem>
 					{/* TODO: This page needs to be completed */}
