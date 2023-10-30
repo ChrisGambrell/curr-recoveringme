@@ -104,7 +104,7 @@ async function main() {
 	await clearDatabase()
 	console.log('Seeding the database...')
 
-	const users = wp_users //.filter((u) => u.email.endsWith('@stepworks.com') || u.display_name.toLowerCase().includes('rich'))
+	const users = wp_users.slice(0, Math.ceil(wp_users.length / 4))
 	const userIds = await seedUsers(users)
 
 	const friends = wp_friends(userIds)

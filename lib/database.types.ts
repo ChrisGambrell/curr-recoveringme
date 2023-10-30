@@ -379,7 +379,7 @@ export interface Database {
     Functions: {
       is_conversation_member: {
         Args: {
-          conversation_id: string
+          _conversation_id: string
           _user_id: string
         }
         Returns: boolean

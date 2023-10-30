@@ -13,13 +13,13 @@ create table public.conversation_members (
     member_id uuid not null references public.profiles on delete cascade
 );
 
-create function public.is_conversation_member(conversation_id uuid, _user_id uuid)
+create function public.is_conversation_member(_conversation_id uuid, _user_id uuid)
 returns bool
 security definer set search_path = public as $$
 select exists (
     select 1
     from public.conversation_members
-    where conversation_id = conversation_id and member_id = _user_id
+    where conversation_id = _conversation_id and member_id = _user_id
 );
 $$ language sql;
 
