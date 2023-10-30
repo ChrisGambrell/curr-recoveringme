@@ -20,7 +20,7 @@ export default async function ConversationPage({ params: { conversationId } }: {
 		let currentGroup: typeof messages = [arr[0]]
 
 		for (let i = 1; i < arr.length; i++) {
-			if (arr[i].user_id === arr[i - 1].user_id) currentGroup.push(arr[i])
+			if (arr[i].sender_id === arr[i - 1].sender_id) currentGroup.push(arr[i])
 			else {
 				result.push(currentGroup)
 				currentGroup = [arr[i]]
@@ -41,7 +41,7 @@ export default async function ConversationPage({ params: { conversationId } }: {
 					<MessageGroup key={i} authedUser={authedUser} group={group} />
 				))}
 			</div>
-			<NewMessageForm conversation_id={+conversationId} user_id={authedUser.id} />
+			<NewMessageForm conversation_id={conversationId} sender_id={authedUser.id} />
 		</div>
 	)
 }

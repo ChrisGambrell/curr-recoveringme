@@ -9,7 +9,7 @@ export default function MessageGroup({ authedUser, group }: { authedUser: Profil
 
 	return (
 		<div className='flex items-end space-x-2'>
-			{authedUser.id !== group[0].user_id && (
+			{authedUser.id !== group[0].sender_id && (
 				<Image
 					className='rounded-full cursor-pointer'
 					src={group[0].author.avatar_url}
@@ -25,7 +25,7 @@ export default function MessageGroup({ authedUser, group }: { authedUser: Profil
 						key={message.id}
 						className={cn(
 							'w-fit px-3 py-1.5 rounded first:rounded-t-xl max-w-xl',
-							message.user_id === authedUser.id ? 'ml-auto bg-muted/75 last:rounded-bl-xl' : 'bg-card last:rounded-br-xl'
+							message.sender_id === authedUser.id ? 'ml-auto bg-muted/75 last:rounded-bl-xl' : 'bg-card last:rounded-br-xl'
 						)}>
 						{message.body}
 					</div>

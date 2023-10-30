@@ -2,7 +2,7 @@
 
 import Loading from '@/components/loading'
 import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
@@ -15,7 +15,7 @@ import { z } from 'zod'
 const formSchema = z.object({ body: z.string().min(1) })
 type TForm = z.infer<typeof formSchema>
 
-export default function NewMessageForm({ conversation_id, user_id }: { conversation_id: number; user_id: string }) {
+export default function NewMessageForm({ conversation_id, sender_id }: { conversation_id: string; sender_id: string }) {
 	const router = useRouter()
 	const [isLoading, setIsLoading] = useState(false)
 
@@ -25,7 +25,7 @@ export default function NewMessageForm({ conversation_id, user_id }: { conversat
 		setIsLoading(true)
 
 		const supabase = createClientComponentClient<Database>()
-		const { error } = await supabase.from('messages').insert({ ...data, conversation_id, user_id })
+		const { error } = await supabase.from('messages').insert({ ...data, conversation_id, sender_id })
 		if (error) {
 			setIsLoading(false)
 			return toast.error(error.message)
