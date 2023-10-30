@@ -24,5 +24,11 @@ export async function getAuth() {
 	const { data: profile } = await supabase.from('profiles').select().eq('id', user.id).single()
 	if (!profile) throw new Error('getAuth needs to be used in an authenticated view')
 
-	return profile
+	const { data } = await supabase.from('friends').select().or(`friend_id.eq.${profile.id},initiator_id.eq.${profile.id}`)
+	const friends = data || []
+
+	const following = friends.filter((f) => f.initiator_id === profile.id)
+	const followers = friends.filter((f) => f.friend_id === profile.id)
+
+	return { ...profile, following, followers }
 }
